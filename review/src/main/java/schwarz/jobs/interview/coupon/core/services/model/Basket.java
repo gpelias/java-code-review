@@ -18,9 +18,10 @@ public class Basket {
 
     private boolean applicationSuccessful;
 
+    // in this application it was always false, and I changed it to true, in this case an exception will never be thrown
     public void applyDiscount(final BigDecimal discount) {
-        this.applicationSuccessful = false;
         this.appliedDiscount = discount;
+        this.applicationSuccessful = true;
     }
 
 }

@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -30,25 +32,22 @@ import schwarz.jobs.interview.coupon.web.dto.CouponRequestDTO;
 public class CouponResource {
 
     private final CouponService couponService;
-
+// fixing the javadoc and swagger documentation
     /**
-     * @param applicationRequestDTO
-     * @return
+     * @param  applicationRequestDTO {@link ApplicationRequestDTO}
+     * @return {@link Basket}
      */
-    //@ApiOperation(value = "Applies currently active promotions and coupons from the request to the requested Basket - Version 1")
+    @ApiOperation(value = "Applies currently active promotions and coupons from the request to the requested Basket - Version 1")
     @PostMapping(value = "/apply")
     public ResponseEntity<Basket> apply(
-        //@ApiParam(value = "Provides the necessary basket and customer information required for the coupon application", required = true)
-        @RequestBody @Valid final ApplicationRequestDTO applicationRequestDTO) {
-
+        @ApiParam(value = "Provides the necessary basket and customer information required for the coupon application", required = true)
+        @RequestBody @Valid final ApplicationRequestDTO applicationRequestDTO
+    ) {
         log.info("Applying coupon");
 
-        final Optional<Basket> basket =
-            couponService.apply(applicationRequestDTO.getBasket(), applicationRequestDTO.getCode());
+        final Optional<Basket> basket = couponService.apply(applicationRequestDTO.getBasket(), applicationRequestDTO.getCode());
 
-        if (basket.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+        if (basket.isEmpty()) return ResponseEntity.notFound().build();
 
         if (!applicationRequestDTO.getBasket().isApplicationSuccessful()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -61,15 +60,13 @@ public class CouponResource {
 
     @PostMapping("/create")
     public ResponseEntity<Void> create(@RequestBody @Valid final CouponDTO couponDTO) {
-
         final Coupon coupon = couponService.createCoupon(couponDTO);
-
-        return ResponseEntity.ok().build();
+        // I added a handler in case an exception occurs during the coupon saving process
+        return coupon != null ? ResponseEntity.ok().build(): ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @GetMapping("/coupons")
     public List<Coupon> getCoupons(@RequestBody @Valid final CouponRequestDTO couponRequestDTO) {
-
         return couponService.getCoupons(couponRequestDTO);
     }
 }
